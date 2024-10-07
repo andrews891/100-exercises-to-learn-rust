@@ -1,14 +1,27 @@
 // TODO: Use two variants, one for a title error and one for a description error.
 //   Each variant should contain a string with the explanation of what went wrong exactly.
 //   You'll have to update the implementation of `Ticket::new` as well.
-enum TicketNewError {}
+#[derive(Debug)]
+enum TicketNewError {
+    TitleError {message: String},
+    DescriptionError
+}
 
 // TODO: `easy_ticket` should panic when the title is invalid, using the error message
 //   stored inside the relevant variant of the `TicketNewError` enum.
 //   When the description is invalid, instead, it should use a default description:
 //   "Description not provided".
 fn easy_ticket(title: String, description: String, status: Status) -> Ticket {
-    todo!()
+    let ticket = Ticket::new(title.clone(), description, status.clone());
+    match ticket {
+        Ok(t) => t,
+        Err(e) => {
+            match e {
+                TicketNewError::TitleError { message } => panic!("{}", message),
+                TicketNewError::DescriptionError => Ticket::new(title, "Description not provided".into(), status).unwrap(),
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -31,17 +44,18 @@ impl Ticket {
         description: String,
         status: Status,
     ) -> Result<Ticket, TicketNewError> {
+        use TicketNewError::*;
         if title.is_empty() {
-            return Err("Title cannot be empty".to_string());
+            return Err(TitleError {message: "Title cannot be empty".to_string()});
         }
         if title.len() > 50 {
-            return Err("Title cannot be longer than 50 bytes".to_string());
+            return Err(TitleError {message: "Title cannot be longer than 50 bytes".to_string()});
         }
         if description.is_empty() {
-            return Err("Description cannot be empty".to_string());
+            return Err(DescriptionError);
         }
         if description.len() > 500 {
-            return Err("Description cannot be longer than 500 bytes".to_string());
+            return Err(DescriptionError);
         }
 
         Ok(Ticket {
