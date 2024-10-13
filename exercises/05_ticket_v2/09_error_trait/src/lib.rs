@@ -12,7 +12,9 @@ enum TicketNewError {
 
 impl Display for TicketNewError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        match self {
+            TicketNewError::TitleError(e) | TicketNewError::DescriptionError(e) => write!(f, "{e}"),
+        }
     }
 }
 
